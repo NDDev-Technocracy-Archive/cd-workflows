@@ -8,13 +8,17 @@ repository:
 
 provider:
   type: "github"
-  installation: "installation:github-nddev-technocracy-sandbox"
+  installation: "installation:github-nddev-technocracy-opennetwork"
   repository_id: 1343629973
-  owner: "NDDev-Technocracy-Sandbox"
+  owner: "NDDev-Technocracy-OpenNetwork"
   name: "cd-workflows"
 
+  aliases:
+    - owner: "NDDev-Technocracy-Sandbox"
+      name: "cd-workflows"
+
 classification:
-  portfolios: ["portfolio:nddev-technocracy-sandbox"]
+  portfolios: ["portfolio:nddev-technocracy-opennetwork"]
   visibility_contract: "public"
   data_classification: "public"
 
