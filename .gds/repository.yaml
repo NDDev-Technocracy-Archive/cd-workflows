@@ -8,9 +8,9 @@ repository:
 
 provider:
   type: "github"
-  installation: "installation:github-opennetwork"
+  installation: "installation:github-nddev-technocracy-sandbox"
   repository_id: 1343629973
-  owner: "NDDev-OpenNetwork"
+  owner: "NDDev-Technocracy-Sandbox"
   name: "cd-workflows"
 
 classification:
