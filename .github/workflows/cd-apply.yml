@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          repository: NDDev-Technocracy-Sandbox/cd-workflows
+          repository: NDDev-Technocracy-OpenNetwork/cd-workflows
           ref: main
           fetch-depth: 0
           persist-credentials: false
@@ -85,7 +85,7 @@ jobs:
           done
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          repository: NDDev-Technocracy-Sandbox/cd-workflows
+          repository: NDDev-Technocracy-OpenNetwork/cd-workflows
           ref: ${{ needs.authorize-contract.outputs.contract_sha }}
           persist-credentials: false
           path: _cd
