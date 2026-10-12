@@ -10,7 +10,7 @@ on:
   workflow_call:
     inputs:
       image:
-        description: 'Image repository without a tag, e.g. ghcr.io/nddev-opennetwork/example-service.'
+        description: 'Image repository without a tag, e.g. ghcr.io/nddev-technocracy-sandbox/example-service.'
         type: string
         required: true
       digest:

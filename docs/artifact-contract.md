@@ -51,7 +51,7 @@ jobs:
     permissions:
       packages: write
     with:
-      image: ghcr.io/nddev-opennetwork/example-service
+      image: ghcr.io/nddev-technocracy-sandbox/example-service
       digest: sha256:0123…abcd
       to_tag: production
 ```
