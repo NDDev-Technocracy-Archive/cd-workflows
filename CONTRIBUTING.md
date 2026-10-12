@@ -43,5 +43,5 @@ a green local run is the same gate.
 
 ## Commits
 
-The only valid author is `rldyourmnd <danil@nddev.it.com>`. Conventional
+The only valid author is `rldyourmnd <danil@nddev.ai>`. Conventional
 Commits; the subject says what changed, the body says why it was wrong before.

@@ -20,15 +20,15 @@ actions:
   - name: actions/upload-artifact
     sha: "043fb46d1a93c77aae656e7c1c64a875d1fc6a0a"
     version: "v7.0.1"
-  - name: NDDev-Technocracy-Sandbox/ci-workflows/.github/workflows/ci-feedback.yml
-    sha: "a7b90bdf1ac12465cbd07072e3360442cfc8eec6"
-    version: "0.1.26"
-  - name: NDDev-Technocracy-Sandbox/ci-workflows/.github/workflows/public-codeql.yml
-    sha: "a7b90bdf1ac12465cbd07072e3360442cfc8eec6"
-    version: "0.1.26"
-  - name: NDDev-Technocracy-Sandbox/ci-workflows/.github/workflows/release-promotion-gate.yml
-    sha: "a7b90bdf1ac12465cbd07072e3360442cfc8eec6"
-    version: "0.1.26"
-  - name: NDDev-Technocracy-Sandbox/ci-workflows/.github/workflows/release-supply-chain.yml
-    sha: "a7b90bdf1ac12465cbd07072e3360442cfc8eec6"
-    version: "0.1.26"
+  - name: NDDev-Technocracy-OpenNetwork/ci-workflows/.github/workflows/ci-feedback.yml
+    sha: "93eeb2a65e98a29e9dbff7909f67c6419abff046"
+    version: "commit:93eeb2a65e98a29e9dbff7909f67c6419abff046"
+  - name: NDDev-Technocracy-OpenNetwork/ci-workflows/.github/workflows/public-codeql.yml
+    sha: "93eeb2a65e98a29e9dbff7909f67c6419abff046"
+    version: "commit:93eeb2a65e98a29e9dbff7909f67c6419abff046"
+  - name: NDDev-Technocracy-OpenNetwork/ci-workflows/.github/workflows/release-promotion-gate.yml
+    sha: "93eeb2a65e98a29e9dbff7909f67c6419abff046"
+    version: "commit:93eeb2a65e98a29e9dbff7909f67c6419abff046"
+  - name: NDDev-Technocracy-OpenNetwork/ci-workflows/.github/workflows/release-supply-chain.yml
+    sha: "93eeb2a65e98a29e9dbff7909f67c6419abff046"
+    version: "commit:93eeb2a65e98a29e9dbff7909f67c6419abff046"

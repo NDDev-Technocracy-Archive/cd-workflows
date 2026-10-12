@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          repository: NDDev-Technocracy-Sandbox/cd-workflows
+          repository: NDDev-Technocracy-OpenNetwork/cd-workflows
           ref: main
           fetch-depth: 0
           persist-credentials: false
@@ -80,7 +80,7 @@ jobs:
             [[ "$value" =~ ^[A-Za-z0-9._/-]+$ && "$value" != /* && "$value" != *..* ]]
           done
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with: {repository: NDDev-Technocracy-Sandbox/cd-workflows, ref: "${{ needs.authorize-contract.outputs.contract_sha }}", persist-credentials: false, path: _cd}
+        with: {repository: NDDev-Technocracy-OpenNetwork/cd-workflows, ref: "${{ needs.authorize-contract.outputs.contract_sha }}", persist-credentials: false, path: _cd}
       - name: Bind requested deployment
         env: {DEPLOYMENT_ID: "${{ inputs.deployment_id }}", PLAN: "source/${{ inputs.plan_path }}"}
         run: '[[ "$DEPLOYMENT_ID" =~ ^deploy_[0-9A-Z]{26}$ ]] && [[ "$(jq -er .deployment_id "$PLAN")" == "$DEPLOYMENT_ID" ]]'
