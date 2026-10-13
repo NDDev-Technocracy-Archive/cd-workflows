@@ -41,7 +41,7 @@ jobs:
     permissions:
       actions: read # verify exact public workflow evidence
       contents: read # read the signed annotated tag
-    uses: NDDev-Technocracy-OpenNetwork/ci-workflows/.github/workflows/release-promotion-gate.yml@93eeb2a65e98a29e9dbff7909f67c6419abff046 # commit:93eeb2a65e98a29e9dbff7909f67c6419abff046
+    uses: NDDev-Technocracy-Archive/ci-workflows-20261014/.github/workflows/release-promotion-gate.yml@93eeb2a65e98a29e9dbff7909f67c6419abff046 # commit:93eeb2a65e98a29e9dbff7909f67c6419abff046
     with:
       version: ${{ needs.resolve.outputs.version }}
       runner: ubuntu-latest
@@ -62,7 +62,7 @@ jobs:
       id-token: write # mint Sigstore identity
       attestations: write # persist provenance and SBOM attestations
       artifact-metadata: write # persist attested artifact metadata
-    uses: NDDev-Technocracy-OpenNetwork/ci-workflows/.github/workflows/release-supply-chain.yml@93eeb2a65e98a29e9dbff7909f67c6419abff046 # commit:93eeb2a65e98a29e9dbff7909f67c6419abff046
+    uses: NDDev-Technocracy-Archive/ci-workflows-20261014/.github/workflows/release-supply-chain.yml@93eeb2a65e98a29e9dbff7909f67c6419abff046 # commit:93eeb2a65e98a29e9dbff7909f67c6419abff046
     with:
       version: ${{ needs.resolve.outputs.version }}
       package_name: cd-workflows
