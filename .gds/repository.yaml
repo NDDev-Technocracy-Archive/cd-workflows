@@ -2,23 +2,24 @@ schema_version: 1
 
 repository:
   id: "repo_01M0Q1Y0YVCJNH27FMQ49MH5AW"
-  display_name: "cd-workflows"
+  display_name: cd-workflows
   roles: ["project", "module"]
-  lifecycle: "active"
-
+  lifecycle: archived
 provider:
   type: "github"
-  installation: "installation:github-nddev-technocracy-opennetwork"
+  installation: "installation:github-nddev-technocracy-archive"
   repository_id: 1343629973
-  owner: "NDDev-Technocracy-OpenNetwork"
-  name: "cd-workflows"
+  owner: NDDev-Technocracy-Archive
+  name: cd-workflows
 
   aliases:
+    - owner: NDDev-Technocracy-OpenNetwork
+      name: cd-workflows
     - owner: "NDDev-Technocracy-Sandbox"
       name: "cd-workflows"
 
 classification:
-  portfolios: ["portfolio:nddev-technocracy-opennetwork"]
+  portfolios: ["portfolio:nddev-technocracy-archive"]
   visibility_contract: "public"
   data_classification: "public"
 
