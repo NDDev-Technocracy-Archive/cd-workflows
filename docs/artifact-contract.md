@@ -47,7 +47,7 @@ caller's token is the entire privilege surface.
 ```yaml
 jobs:
   promote:
-    uses: NDDev-Technocracy-OpenNetwork/cd-workflows/.github/workflows/cd-promote.yml@<pinned-sha>
+    uses: NDDev-Technocracy-Archive/cd-workflows/.github/workflows/cd-promote.yml@<pinned-sha>
     permissions:
       packages: write
     with:

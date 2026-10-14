@@ -20,15 +20,15 @@ actions:
   - name: actions/upload-artifact
     sha: "043fb46d1a93c77aae656e7c1c64a875d1fc6a0a"
     version: "v7.0.1"
-  - name: NDDev-Technocracy-OpenNetwork/ci-workflows/.github/workflows/ci-feedback.yml
+  - name: NDDev-Technocracy-Archive/ci-workflows-20261014/.github/workflows/ci-feedback.yml
     sha: "93eeb2a65e98a29e9dbff7909f67c6419abff046"
     version: "commit:93eeb2a65e98a29e9dbff7909f67c6419abff046"
-  - name: NDDev-Technocracy-OpenNetwork/ci-workflows/.github/workflows/public-codeql.yml
+  - name: NDDev-Technocracy-Archive/ci-workflows-20261014/.github/workflows/public-codeql.yml
     sha: "93eeb2a65e98a29e9dbff7909f67c6419abff046"
     version: "commit:93eeb2a65e98a29e9dbff7909f67c6419abff046"
-  - name: NDDev-Technocracy-OpenNetwork/ci-workflows/.github/workflows/release-promotion-gate.yml
+  - name: NDDev-Technocracy-Archive/ci-workflows-20261014/.github/workflows/release-promotion-gate.yml
     sha: "93eeb2a65e98a29e9dbff7909f67c6419abff046"
     version: "commit:93eeb2a65e98a29e9dbff7909f67c6419abff046"
-  - name: NDDev-Technocracy-OpenNetwork/ci-workflows/.github/workflows/release-supply-chain.yml
+  - name: NDDev-Technocracy-Archive/ci-workflows-20261014/.github/workflows/release-supply-chain.yml
     sha: "93eeb2a65e98a29e9dbff7909f67c6419abff046"
     version: "commit:93eeb2a65e98a29e9dbff7909f67c6419abff046"
