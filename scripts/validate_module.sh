@@ -15,8 +15,8 @@ import re
 
 anchor = Path(".gds/repository.yaml").read_text(encoding="utf-8")
 for line in (
-    '  owner: "NDDev-Technocracy-OpenNetwork"',
-    '  name: "cd-workflows"',
+    '  owner: NDDev-Technocracy-Archive',
+    '  name: cd-workflows',
     '  visibility_contract: "public"',
     '  data_classification: "public"',
 ):
@@ -44,7 +44,7 @@ for required in (
     "runs-on: [self-hosted, cd-plan-out-of-band]",
     "inputs.execution_surface == 'hosted'",
     "inputs.execution_surface == 'out-of-band'",
-    "repository: NDDev-Technocracy-OpenNetwork/cd-workflows",
+    "repository: NDDev-Technocracy-Archive/cd-workflows",
     "ref: ${{ needs.authorize-contract.outputs.contract_sha }}",
     "retention-days: 30",
 ):
