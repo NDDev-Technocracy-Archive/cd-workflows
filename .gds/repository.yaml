@@ -60,7 +60,6 @@ agent:
   serena: {enabled: false, provenance_required: false}
 
 module:
-  development: "standalone"
   contract: "public"
   consumption: ["git-submodule"]
   compatibility: "commit-contract"
