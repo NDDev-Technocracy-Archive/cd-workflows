@@ -27,8 +27,8 @@ actions:
     sha: "93eeb2a65e98a29e9dbff7909f67c6419abff046"
     version: "commit:93eeb2a65e98a29e9dbff7909f67c6419abff046"
   - name: NDDev-Technocracy-Standarts/std-0004-ci-cd-workflows/.github/actions/tools
-    sha: "9cc44a5043ddd266f3e73fefacc52f5cf5a7d70f"
-    version: "nddev-cicd-v0.6.18"
+    sha: "c192c6adcf22088abf456635de614d42e8fa3f8d"
+    version: "nddev-cicd-v0.6.20"
   - name: github/codeql-action/init
     sha: "9b3254085494b55a0f7c4c2b3d2d52cc712ce370"
     version: "v4.39.1"
