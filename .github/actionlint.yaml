@@ -1,5 +1,7 @@
 self-hosted-runner:
   labels:
+    - ubuntu-26.04
+    - ubuntu-26.04-arm
     - cd-apply-out-of-band
     - cd-plan-out-of-band
     - cd-verify-out-of-band
