@@ -20,12 +20,6 @@ actions:
   - name: actions/upload-artifact
     sha: "043fb46d1a93c77aae656e7c1c64a875d1fc6a0a"
     version: "v7.0.1"
-  - name: NDDev-Technocracy-Archive/ci-workflows-20261014/.github/workflows/release-promotion-gate.yml
-    sha: "93eeb2a65e98a29e9dbff7909f67c6419abff046"
-    version: "commit:93eeb2a65e98a29e9dbff7909f67c6419abff046"
-  - name: NDDev-Technocracy-Archive/ci-workflows-20261014/.github/workflows/release-supply-chain.yml
-    sha: "93eeb2a65e98a29e9dbff7909f67c6419abff046"
-    version: "commit:93eeb2a65e98a29e9dbff7909f67c6419abff046"
   - name: NDDev-Technocracy-Standarts/std-0004-ci-cd-workflows/.github/actions/tools
     sha: "c192c6adcf22088abf456635de614d42e8fa3f8d"
     version: "nddev-cicd-v0.6.20"
@@ -41,3 +35,6 @@ actions:
   - name: ossf/scorecard-action
     sha: "fa7117db83c52d787ae5a89f350999701505d78e"
     version: "v2.5.0"
+  - name: NDDev-Technocracy-Standarts/std-0004-ci-cd-workflows/.github/actions/source-release
+    sha: "ab5739f31d142275590b35c654def3e027ec6c4f"
+    version: "nddev-cicd-v0.6.22"

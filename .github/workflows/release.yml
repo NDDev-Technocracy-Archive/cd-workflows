@@ -37,14 +37,28 @@ jobs:
           printf 'version=%s\n' "$version" >>"$GITHUB_OUTPUT"
 
   promotion:
+    # A release promotes only a commit whose push CI on main passed.
     needs: resolve
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
     permissions:
-      actions: read # verify exact public workflow evidence
-      contents: read # read the signed annotated tag
-    uses: NDDev-Technocracy-Archive/ci-workflows-20261014/.github/workflows/release-promotion-gate.yml@93eeb2a65e98a29e9dbff7909f67c6419abff046 # commit:93eeb2a65e98a29e9dbff7909f67c6419abff046
-    with:
-      version: ${{ needs.resolve.outputs.version }}
-      runner: ubuntu-latest
+      actions: read # read the main CI evidence for the tagged commit
+      contents: read # read the annotated tag
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Require an annotated tag on a green main commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.resolve.outputs.version }}
+        run: |
+          set -euo pipefail
+          [ "$(git cat-file -t "refs/tags/$VERSION")" = tag ]
+          [ "$(git rev-parse "refs/tags/$VERSION^{commit}")" = "$GITHUB_SHA" ]
+          passed=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?head_sha=$GITHUB_SHA&branch=main&event=push&status=success" --jq '.total_count')
+          [ "$passed" -gt 0 ] || { echo "main CI has not passed for $GITHUB_SHA" >&2; exit 1; }
 
   authorize:
     needs: [resolve, promotion]
@@ -57,14 +71,21 @@ jobs:
 
   publish:
     needs: [resolve, promotion, authorize]
+    runs-on: ubuntu-26.04
+    timeout-minutes: 30
     permissions:
       contents: write # create the immutable release
       id-token: write # mint Sigstore identity
       attestations: write # persist provenance and SBOM attestations
       artifact-metadata: write # persist attested artifact metadata
-    uses: NDDev-Technocracy-Archive/ci-workflows-20261014/.github/workflows/release-supply-chain.yml@93eeb2a65e98a29e9dbff7909f67c6419abff046 # commit:93eeb2a65e98a29e9dbff7909f67c6419abff046
-    with:
-      version: ${{ needs.resolve.outputs.version }}
-      package_name: cd-workflows
-      archive_paths: 'README.md LICENSE SECURITY.md CONTRIBUTING.md VERSION CHANGELOG.md .github schemas scripts tests'
-      runner: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: refs/tags/${{ needs.resolve.outputs.version }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: NDDev-Technocracy-Standarts/std-0004-ci-cd-workflows/.github/actions/source-release@ab5739f31d142275590b35c654def3e027ec6c4f # nddev-cicd-v0.6.22
+        with:
+          version: ${{ needs.resolve.outputs.version }}
+          package-name: cd-workflows
+          archive-paths: 'README.md LICENSE SECURITY.md CONTRIBUTING.md VERSION CHANGELOG.md .github schemas scripts tests'
