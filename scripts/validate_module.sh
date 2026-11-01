@@ -36,7 +36,7 @@ if (
         "without required checks or bypass"
     )
 workflow = Path(".github/workflows/ci.yml").read_text(encoding="utf-8")
-if "runs-on: ubuntu-latest" not in workflow or "pull_request_target" in workflow or "secrets:" in workflow:
+if "runs-on: ubuntu-26.04" not in workflow or "pull_request_target" in workflow or "secrets:" in workflow:
     raise SystemExit("public CI runner or trust boundary drifted")
 plan_workflow = Path(".github/workflows/cd-plan.yml").read_text(encoding="utf-8")
 for required in (
@@ -134,11 +134,14 @@ for forbidden in (
 if promote.index("imagetools inspect") > promote.index("imagetools create"):
     raise SystemExit("cd-promote must prove the digest exists before writing the tag")
 
+# GitHub-hosted Ubuntu 26.04 labels are declared only because actionlint 1.7.12
+# predates them (rhysd/actionlint#682); they are not self-hosted runner contracts.
+HOSTED_LABELS = {"ubuntu-26.04", "ubuntu-26.04-arm"}
 declared_labels = {
     line.removeprefix("    - ").strip()
     for line in Path(".github/actionlint.yaml").read_text(encoding="utf-8").splitlines()
     if line.startswith("    - ")
-}
+} - HOSTED_LABELS
 used_labels = set()
 for path in Path(".github/workflows").glob("*.yml"):
     used_labels.update(re.findall(r"runs-on: \[self-hosted, ([a-z0-9-]+)\]", path.read_text(encoding="utf-8")))
