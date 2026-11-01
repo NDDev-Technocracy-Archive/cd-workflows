@@ -16,7 +16,7 @@ concurrency:
 jobs:
   validate:
     name: static validators
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -29,10 +29,40 @@ jobs:
     name: test
     needs: validate
     if: ${{ always() }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     steps:
       - name: Preserve required check identity
         env:
           VALIDATE_RESULT: ${{ needs.validate.result }}
         run: test "$VALIDATE_RESULT" = success
+
+  workflows:
+    # This repository's own workflows (the published reusables are linted by their callers' CI):
+    # lint and audit plus the secret scan, new commits on pull requests, full history on main.
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: NDDev-Technocracy-Standarts/std-0004-ci-cd-workflows/.github/actions/tools@9cc44a5043ddd266f3e73fefacc52f5cf5a7d70f # nddev-cicd-v0.6.18
+        with:
+          capability: security
+      - name: Lint and audit this repository's own workflows
+        run: |
+          actionlint .github/workflows/ci.yml .github/workflows/release.yml .github/workflows/security.yml
+          zizmor --offline --no-progress .github/workflows/ci.yml .github/workflows/release.yml .github/workflows/security.yml
+      - name: Scan new pull request commits, or the full history on main
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if [ -n "$BASE" ]; then
+            gitleaks git --no-banner --redact --log-opts="$BASE..$HEAD" .
+          else
+            gitleaks git --no-banner --redact .
+          fi
