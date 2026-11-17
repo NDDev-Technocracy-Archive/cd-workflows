@@ -63,3 +63,11 @@ The CI feedback workflow reports unsuccessful completed self-workflow attempts
 as unassigned issues in this repository. It uses a pinned publisher and records
 actual job conclusions and attempt identity without executing source-run code.
 Issue publication does not launch a repair agent or authorize deployment.
+
+## Source checks
+
+`just check` runs the existing readonly schema, workflow trust, action-catalog
+and source checks without builds or network access. `just test` runs every
+existing unit/provenance case and the Python bytecode checks on an execution
+host or CI. `just verify` and `scripts/validate_module.sh` run both. These
+commands do not dispatch any delivery workflow or call a release endpoint.

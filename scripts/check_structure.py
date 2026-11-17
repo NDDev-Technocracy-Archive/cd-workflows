@@ -1,0 +1,138 @@
+import json
+from pathlib import Path
+import re
+
+anchor = Path(".gds/repository.yaml").read_text(encoding="utf-8")
+for line in (
+    '  owner: NDDev-Technocracy-Archive',
+    '  name: cd-workflows',
+    '  visibility_contract: "public"',
+    '  data_classification: "public"',
+):
+    if line not in anchor:
+        raise SystemExit(f"public module anchor lacks {line!r}")
+ruleset = json.loads(Path(".github/rulesets/branch-main.json").read_text())
+rule_types = [rule.get("type") for rule in ruleset.get("rules", [])]
+if (
+    "continuous-development" not in anchor
+    or "  required_contexts: []" not in anchor
+    or ruleset.get("bypass_actors") != []
+    or "required_status_checks" in rule_types
+    or set(rule_types) != {"deletion", "non_fast_forward", "pull_request", "required_signatures"}
+):
+    raise SystemExit(
+        "public ruleset must keep signatures/PR/deletion/non-fast-forward "
+        "without required checks or bypass"
+    )
+workflow = Path(".github/workflows/ci.yml").read_text(encoding="utf-8")
+if "runs-on: ubuntu-26.04" not in workflow or "pull_request_target" in workflow or "secrets:" in workflow:
+    raise SystemExit("public CI runner or trust boundary drifted")
+plan_workflow = Path(".github/workflows/cd-plan.yml").read_text(encoding="utf-8")
+for required in (
+    "runs-on: ubuntu-latest",
+    "runs-on: [self-hosted, cd-plan-out-of-band]",
+    "inputs.execution_surface == 'hosted'",
+    "inputs.execution_surface == 'out-of-band'",
+    "repository: NDDev-Technocracy-Archive/cd-workflows",
+    "ref: ${{ needs.authorize-contract.outputs.contract_sha }}",
+    "retention-days: 30",
+):
+    if required not in plan_workflow:
+        raise SystemExit(f"cd-plan workflow lacks {required!r}")
+for forbidden in ("pull_request_target", "secrets:", "runs-on: ${{", "shell_command", "runner_label"):
+    if forbidden in plan_workflow:
+        raise SystemExit(f"cd-plan workflow exposes forbidden surface {forbidden!r}")
+action = Path(".github/actions/contract/action.yml").read_text(encoding="utf-8")
+for command in ("seal)", "validate-plan)", "transition)"):
+    if command not in action:
+        raise SystemExit(f"contract action lacks closed command {command!r}")
+if "eval " in action or "bash -c" in action:
+    raise SystemExit("contract action permits free-form command execution")
+
+lifecycle_action = Path(".github/actions/lifecycle/action.yml").read_text(encoding="utf-8")
+for required in ("nddev-cd-adapter", "validate-approval", "validate-evidence", "command -v nddev-cd-adapter"):
+    if required not in lifecycle_action:
+        raise SystemExit(f"lifecycle action lacks {required!r}")
+for forbidden in ("eval ", "bash -c", "ssh ", "sudo ", "curl "):
+    if forbidden in lifecycle_action:
+        raise SystemExit(f"lifecycle action exposes forbidden execution surface {forbidden!r}")
+
+first_job = {
+    "apply": "  apply:", "verify": "  verify:", "resume": "  resume:",
+    "rollback": "  rollback:", "evidence": "  validate:", "plan": "  hosted:",
+}
+for name in ("apply", "verify", "resume", "rollback", "evidence", "plan"):
+    content = Path(f".github/workflows/cd-{name}.yml").read_text(encoding="utf-8")
+    if "pull_request_target" in content or "secrets:" in content or "runs-on: ${{" in content:
+        raise SystemExit(f"cd-{name} workflow violates the fixed trust boundary")
+    if name in {"apply", "resume", "rollback"}:
+        for required in ("runs-on: [self-hosted, cd-apply-out-of-band]", "environment: cd-apply", "cancel-in-progress: false", "id-token: write"):
+            if required not in content:
+                raise SystemExit(f"cd-{name} workflow lacks {required!r}")
+    # Every entrypoint that accepts a contract_sha proves reviewed ancestry on
+    # a hosted job before anything checks that commit out, and the consuming
+    # job re-compares the authorized value. Only cd-apply carried this once;
+    # resume, rollback, verify, evidence and the out-of-band plan branch
+    # executed a caller-supplied commit on their runners without it.
+    for required in (
+        "authorize-contract:",
+        "runs-on: ubuntu-latest",
+        "permissions: {}",
+        "fetch-depth: 0",
+        'git -C authority fetch --no-tags --depth=1 origin "$CONTRACT_SHA"',
+        'git -C authority merge-base --is-ancestor "$CONTRACT_SHA" refs/remotes/origin/main',
+        "needs: authorize-contract",
+        '[[ "$CONTRACT_SHA" == "$AUTHORIZED_CONTRACT_SHA" ]]',
+    ):
+        if required not in content:
+            raise SystemExit(f"cd-{name} workflow lacks provenance control {required!r}")
+    if content.index("authorize-contract:") > content.index(first_job[name]):
+        raise SystemExit(f"cd-{name} privileged job appears before contract authorization")
+    if content.count("needs: authorize-contract") < content.count("ref: ${{ needs.authorize-contract.outputs.contract_sha }}"):
+        raise SystemExit(f"cd-{name} checks out the contract in a job that skipped authorization")
+    if name == "verify" and "runs-on: [self-hosted, cd-verify-out-of-band]" not in content:
+        raise SystemExit("cd-verify workflow is not independent of the managed fleet")
+
+# cd-promote moves an environment tag onto an already-pushed digest and
+# nothing else. It must never gain a build surface: no checkout (promotion
+# needs no source), no build-push, no free-form runner. The read-back is the
+# contract -- a promote that cannot prove the tag resolves to the digest it
+# was given is a tag write, not a promotion.
+promote = Path(".github/workflows/cd-promote.yml").read_text(encoding="utf-8")
+for required in (
+    "permissions: {}",
+    "runs-on: ubuntu-latest",
+    "packages: write",
+    'sha256:[0-9a-f]{64}',
+    "imagetools inspect",
+    "imagetools create",
+    "Read the tag back",
+):
+    if required not in promote:
+        raise SystemExit(f"cd-promote workflow lacks {required!r}")
+for forbidden in (
+    "pull_request_target",
+    "secrets:",
+    "runs-on: ${{",
+    "actions/checkout",
+    "build-push-action",
+    "context:",
+):
+    if forbidden in promote:
+        raise SystemExit(f"cd-promote workflow exposes forbidden surface {forbidden!r}")
+if promote.index("imagetools inspect") > promote.index("imagetools create"):
+    raise SystemExit("cd-promote must prove the digest exists before writing the tag")
+
+# GitHub-hosted Ubuntu 26.04 labels are declared only because actionlint 1.7.12
+# predates them (rhysd/actionlint#682); they are not self-hosted runner contracts.
+HOSTED_LABELS = {"ubuntu-26.04", "ubuntu-26.04-arm"}
+declared_labels = {
+    line.removeprefix("    - ").strip()
+    for line in Path(".github/actionlint.yaml").read_text(encoding="utf-8").splitlines()
+    if line.startswith("    - ")
+} - HOSTED_LABELS
+used_labels = set()
+for path in Path(".github/workflows").glob("*.yml"):
+    used_labels.update(re.findall(r"runs-on: \[self-hosted, ([a-z0-9-]+)\]", path.read_text(encoding="utf-8")))
+if declared_labels != used_labels:
+    raise SystemExit(f"actionlint labels differ from workflow contract: declared={sorted(declared_labels)} used={sorted(used_labels)}")
