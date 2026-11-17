@@ -5,64 +5,56 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+    types: [opened, synchronize, reopened, edited]
 
-permissions:
-  contents: read
+permissions: {}
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: source-${{ github.run_id }}
   cancel-in-progress: false
 
 jobs:
   validate:
     name: static validators
     runs-on: ubuntu-26.04
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - name: Validate public module
-        run: scripts/validate_module.sh
-
-  test:
-    name: test
-    needs: validate
-    if: ${{ always() }}
-    runs-on: ubuntu-26.04
-    timeout-minutes: 5
-    steps:
-      - name: Preserve required check identity
-        env:
-          VALIDATE_RESULT: ${{ needs.validate.result }}
-        run: test "$VALIDATE_RESULT" = success
-
-  workflows:
-    # This repository's own workflows (the published reusables are linted by their callers' CI):
-    # lint and audit plus the secret scan, new commits on pull requests, full history on main.
-    runs-on: ubuntu-26.04
-    timeout-minutes: 10
+    timeout-minutes: 15
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Prepare source tooling
+        uses: NDDev-Technocracy-OpenNetwork/nddev-ci/actions/prepare@c09f5939b8ca3ef1ddf72d825ff01d751e649292 # v0.6.60
         with:
-          persist-credentials: false
-          fetch-depth: 0
-      - uses: NDDev-Technocracy-Standarts/std-0004-ci-cd-workflows/.github/actions/tools@c192c6adcf22088abf456635de614d42e8fa3f8d # nddev-cicd-v0.6.20
+          managed: 'false'
+          fetch-depth: '0'
+          python-version: '3.15.2'
+          tools: zizmor@1.32.0,shellcheck@0.11.0
+          tool-assets: tools/ci-tools.json
+      - name: Run source and actual unit/provenance contracts
+        id: project
+        run: just verify
+      - name: Complete the contract checks
+        if: always()
+        uses: NDDev-Technocracy-OpenNetwork/nddev-ci/actions/complete@c09f5939b8ca3ef1ddf72d825ff01d751e649292 # v0.6.60
         with:
-          capability: security
-      - name: Lint and audit this repository's own workflows
-        run: |
-          actionlint .github/workflows/ci.yml .github/workflows/release.yml .github/workflows/security.yml
-          zizmor --offline --no-progress .github/workflows/ci.yml .github/workflows/release.yml .github/workflows/security.yml
-      - name: Scan new pull request commits, or the full history on main
+          status: ${{ job.status }}
+          project-outcome: ${{ steps.project.outcome }}
+          task: source and native contracts
+          name: contract-checks
+
+  merge-stops:
+    uses: NDDev-Technocracy-OpenNetwork/nddev-ci/.github/workflows/merge-stops.yml@c09f5939b8ca3ef1ddf72d825ff01d751e649292 # v0.6.60
+    permissions:
+      contents: read
+
+  test:
+    name: test
+    needs: [validate, merge-stops]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    steps:
+      - name: Require actual native contracts and security success
         env:
-          BASE: ${{ github.event.pull_request.base.sha }}
-          HEAD: ${{ github.event.pull_request.head.sha }}
-        run: |
-          if [ -n "$BASE" ]; then
-            gitleaks git --no-banner --redact --log-opts="$BASE..$HEAD" .
-          else
-            gitleaks git --no-banner --redact .
-          fi
+          VALIDATE_RESULT: ${{ needs.validate.result }}
+          STOPS_RESULT: ${{ needs.merge-stops.result }}
+        run: test "$VALIDATE_RESULT" = success && test "$STOPS_RESULT" = success
